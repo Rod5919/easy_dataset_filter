@@ -1,3 +1,3 @@
 from edf import EDF
 
-EDF(input_folder="data/images", output_folder="public/images")
+EDF(input_folder="../data", output_folder="../public")

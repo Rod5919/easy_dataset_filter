@@ -1,35 +1,43 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import os
+import glob
 
 from .os_script import Os_script as osp
 from .tmp_script import Tmp_script as tsp
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 class EDF:
-    def __init__(self, input_folder='data/images/', output_folder='public/images', checkpoint_directory=os.path.join(os.path.dirname(os.path.realpath(__file__)),'tmp')):
+    def __init__(self,
+                 input_folder='data', 
+                 output_folder='public',
+                 current_folder=os.path.dirname(os.path.realpath(__file__)),
+                 checkpoint_directory=None,
+                 image_extension="jpg"):
+        # Current directory for the checkpoint_directory
+        checkpoint_directory = os.path.join(current_folder,'tmp') if checkpoint_directory is None else checkpoint_directory
         # PyQt5
         self.app = QtWidgets.QApplication(sys.argv)
         self.main_window = QtWidgets.QMainWindow()
         self.main_window.show()
         
         # Imports
-        self.osp = osp(input_folder=input_folder, output_folder=output_folder)
+        self.osp = osp(input_folder=input_folder, output_folder=output_folder, current_folder=current_folder)
         self.tsp = tsp(checkpoint_directory)
         
         # Variables
-        self.files = []
+        self.files = glob.glob(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
         self.moved = []
         self.discarted = 0
                 
+        print(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
+        print(self.files)
         # SetupUi
         self.setupUi()
         sys.exit(self.app.exec_())
     
     
     def setupUi(self):
-        #TODO: Add image
-        #TODO: Add xml tag
         self.main_window.setObjectName("self.MainWindow")
         self.main_window.resize(640, 480)
         
@@ -37,12 +45,23 @@ class EDF:
         self.centralwidget.setObjectName("centralwidget")
         
         self.backButton = QtWidgets.QPushButton(self.centralwidget)
-        self.backButton.setGeometry(QtCore.QRect(30, 60, 31, 181))
+        self.backButton.setGeometry(QtCore.QRect(30, 60, 30, 180))
         self.backButton.setObjectName("backButton")
         self.backButton.clicked.connect(self.prevImage)
 
+        self.imageButton = QtWidgets.QPushButton(self.centralwidget)
+        self.imageButton.setGeometry(QtCore.QRect(60, 60, 250, 150))
+        self.imageButton.setObjectName("imageButton")
+        self.imageButton.setIcon(QtGui.QIcon('/home/rodri/Documents/easy_dataset_filter/Screenshot from 2022-05-18 17-26-54.png'))
+        self.imageButton.setIconSize(QtCore.QSize(250, 180))
+
+        self.xml_badge = QtWidgets.QLabel(self.centralwidget)
+        self.xml_badge.setObjectName("xml_badge")
+        self.xml_badge.setText("xml")
+        self.xml_badge.setGeometry(QtCore.QRect(270, 70, 25, 17))
+
         self.nextButton = QtWidgets.QPushButton(self.centralwidget)
-        self.nextButton.setGeometry(QtCore.QRect(310, 60, 31, 181))
+        self.nextButton.setGeometry(QtCore.QRect(310, 60, 30, 180))
         self.nextButton.setObjectName("nextButton")
         
         self.rejectButton = QtWidgets.QPushButton(self.centralwidget)
@@ -111,9 +130,9 @@ class EDF:
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
 
-    def acceptImage(self):
-        #TODO: acceptImage
-        pass
+    def acceptImage(self, path, destination):
+        self.osp.move_file(path, destination)        
+        self.osp.move_xml_file(path, destination)
     
     def rejectImage(self):
         #TODO: rejectImage

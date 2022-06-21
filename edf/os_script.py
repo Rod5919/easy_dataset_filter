@@ -2,7 +2,7 @@ import os
 import shutil
 
 class Os_script:
-    def __init__(self, input_folder='data/images', output_folder='public/images', current_folder=os.path.dirname(os.path.realpath(__file__))):
+    def __init__(self, input_folder, output_folder, current_folder):
         self.__current_folder = current_folder
         self.__input_folder = os.path.join(self.__current_folder, input_folder)
         self.__output_folder = os.path.join(self.__current_folder, output_folder)
@@ -16,6 +16,9 @@ class Os_script:
             print(f"{path} moved to {destination}")
         except FileNotFoundError:
             print(f"{path} has no xml file")
+
+    def has_xml_file(self, path):
+        return os.path.exists(path.split('.')[0]+"xml")
 
     def setInputfolder(self, path):
         self.__input_folder = path
