@@ -28,6 +28,8 @@ class EDF:
     
     
     def setupUi(self):
+        #TODO: Add image
+        #TODO: Add xml tag
         self.main_window.setObjectName("self.MainWindow")
         self.main_window.resize(640, 480)
         
@@ -108,6 +110,14 @@ class EDF:
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
+
+    def acceptImage(self):
+        #TODO: acceptImage
+        pass
+    
+    def rejectImage(self):
+        #TODO: rejectImage
+        pass
 
     def nextImage(self):
         #TODO: nextImage

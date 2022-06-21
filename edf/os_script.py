@@ -14,6 +14,10 @@ class Os_script:
         #TODO: move_xml_file
         pass
 
+    def has_xml_file(self, path):
+        #TODO: has_xml_file
+        pass
+
     def setInputfolder(self, path):
         #TODO: setInputfolder
         pass
