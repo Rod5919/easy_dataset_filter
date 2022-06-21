@@ -1,34 +1,27 @@
 import os
+import shutil
 
 class Os_script:
-    def __init__(self, input_folder='data/images', output_folder='public/images'):
-        self.__current_folder = os.path.dirname(os.path.realpath(__file__))
+    def __init__(self, input_folder='data/images', output_folder='public/images', current_folder=os.path.dirname(os.path.realpath(__file__))):
+        self.__current_folder = current_folder
         self.__input_folder = os.path.join(self.__current_folder, input_folder)
         self.__output_folder = os.path.join(self.__current_folder, output_folder)
 
     def move_file(self, path, destination):
-        #TODO: move_file
-        pass
+        shutil.copyfile(path, destination)
 
     def move_xml_file(self, path, destination):
-        #TODO: move_xml_file
-        pass
-
-    def has_xml_file(self, path):
-        #TODO: has_xml_file
-        pass
+        try:
+            shutil.copyfile(path.split('.')[0]+"xml", destination)
+            print(f"{path} moved to {destination}")
+        except FileNotFoundError:
+            print(f"{path} has no xml file")
 
     def setInputfolder(self, path):
-        #TODO: setInputfolder
-        pass
+        self.__input_folder = path
 
     def setOutputfolder(self, path):
-        #TODO: setOutputfolder
-        pass
-
-    def setCurrentfolder(self, path):
-        #TODO: setCurrentfolder
-        pass
+        self.__output_folder = path
     
     def getInputfolder(self):
         return self.__input_folder
