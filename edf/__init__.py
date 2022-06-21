@@ -30,8 +30,10 @@ class EDF:
         self.moved = []
         self.discarted = 0
                 
-        print(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
-        print(self.files)
+        # State variables
+        self.image = ""
+        self.xml_exist = False
+        
         # SetupUi
         self.setupUi()
         sys.exit(self.app.exec_())
