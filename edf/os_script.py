@@ -2,10 +2,9 @@ import os
 
 class Os_script:
     def __init__(self, input_folder='data/images', output_folder='public/images'):
-        self.__current_folder = dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.__current_folder = os.path.dirname(os.path.realpath(__file__))
         self.__input_folder = os.path.join(self.__current_folder, input_folder)
         self.__output_folder = os.path.join(self.__current_folder, output_folder)
-        print("Os_script imported")
 
     def move_file(self, path, destination):
         #TODO: move_file
