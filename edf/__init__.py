@@ -11,7 +11,7 @@ class EDF:
     def __init__(self,
                  input_folder='data', 
                  output_folder='public',
-                 current_folder=os.path.dirname(os.path.realpath(__file__)),
+                 current_folder=os.path.join(os.path.dirname(os.path.realpath(__file__)),'..'),
                  checkpoint_directory=None,
                  image_extension="jpg"):
         # Current directory for the checkpoint_directory
@@ -24,14 +24,14 @@ class EDF:
         # Imports
         self.osp = osp(input_folder=input_folder, output_folder=output_folder, current_folder=current_folder)
         self.tsp = tsp(checkpoint_directory)
+        print(checkpoint_directory)
+        print(self.tsp.getCheckpoints())
         
         # Variables
         self.files = glob.glob(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
         self.moved = []
         self.discarted = 0
                 
-        print(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
-        print(self.files)
         # SetupUi
         self.setupUi()
         sys.exit(self.app.exec_())

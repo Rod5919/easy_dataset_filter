@@ -3,7 +3,7 @@ import glob
 import json
 
 class Tmp_script:
-    def __init__(self, dir_path= os.path.join(os.path.dirname(os.path.realpath(__file__)),'tmp')):
+    def __init__(self, dir_path):
         self.__dir_path = dir_path
         self.__checkpoints = glob.glob(os.path.join(dir_path,"*.json"))
 
