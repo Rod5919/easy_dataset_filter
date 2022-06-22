@@ -9,13 +9,14 @@ class Os_script:
 
     def move_file(self, path, destination):
         shutil.copyfile(path, destination)
+        print(f"{path.split('/')[-1]} moved")
 
-    def move_xml_file(self, path, destination):
+    def move_xml_file(self, path, destination, image_extension):
         try:
-            shutil.copyfile(path.split('.')[0]+"xml", destination)
-            print(f"{path} moved to {destination}")
+            shutil.copyfile(path.replace(image_extension, 'xml'), destination.replace(image_extension, "xml"))
+            print(f"{path.split('/')[-1]} moved with its xml file")
         except FileNotFoundError:
-            print(f"{path} has no xml file")
+            print(f"{path.split('/')[-1]} has no xml file")
 
     def has_xml_file(self, path):
         return os.path.exists(path.split('.')[0]+"xml")

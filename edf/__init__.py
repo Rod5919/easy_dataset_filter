@@ -1,20 +1,24 @@
+#TODO: Move files
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import os
 import glob
+from operator import itemgetter
 
 from .os_script import Os_script as osp
 from .tmp_script import Tmp_script as tsp
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-class EDF:
+class EDF:    
     def __init__(self,
                  input_folder='data', 
                  output_folder='public',
-                 current_folder=os.path.dirname(os.path.realpath(__file__)),
+                 current_folder=os.path.join(os.path.dirname(os.path.realpath(__file__)),'..'),
                  checkpoint_directory=None,
                  image_extension="jpg"):
         # Current directory for the checkpoint_directory
+        input_folder = os.path.join(current_folder,input_folder)
+        output_folder = os.path.join(current_folder,output_folder)
         checkpoint_directory = os.path.join(current_folder,'tmp') if checkpoint_directory is None else checkpoint_directory
         # PyQt5
         self.app = QtWidgets.QApplication(sys.argv)
@@ -24,17 +28,35 @@ class EDF:
         # Imports
         self.osp = osp(input_folder=input_folder, output_folder=output_folder, current_folder=current_folder)
         self.tsp = tsp(checkpoint_directory)
+        # print(checkpoint_directory)
+        # print(self.tsp.getCheckpoints())
         
         # Variables
         self.files = glob.glob(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
-        self.moved = []
-        self.discarted = 0
-                
+        self.files_moved = []
+        self.files_discarted = []
+        self.image_extension = image_extension
+
+        # Routes
+        self.current_folder = current_folder
+        self.input_folder = input_folder
+        self.output_folder = output_folder
+        self.checkpoint_index = len(self.tsp.getCheckpoints())-1
+
         # State variables
-        self.image = ""
-        self.xml_exist = False
+        self.image_index = 0
+        self.image = self.files[self.image_index]
+        self.xml_exists = False
         
         # SetupUi
+        self.tsp.create_checkpoint({
+            "current_folder": self.current_folder,
+            "input_folder": self.input_folder,
+            "output_folder": self.output_folder,
+            "files": self.files,
+            "files_moved": self.files_moved,
+            "files_discarted": self.files_discarted
+        })
         self.setupUi()
         sys.exit(self.app.exec_())
     
@@ -54,7 +76,6 @@ class EDF:
         self.imageButton = QtWidgets.QPushButton(self.centralwidget)
         self.imageButton.setGeometry(QtCore.QRect(60, 60, 250, 150))
         self.imageButton.setObjectName("imageButton")
-        self.imageButton.setIcon(QtGui.QIcon('/home/rodri/Documents/easy_dataset_filter/Screenshot from 2022-05-18 17-26-54.png'))
         self.imageButton.setIconSize(QtCore.QSize(250, 180))
 
         self.xml_badge = QtWidgets.QLabel(self.centralwidget)
@@ -65,14 +86,17 @@ class EDF:
         self.nextButton = QtWidgets.QPushButton(self.centralwidget)
         self.nextButton.setGeometry(QtCore.QRect(310, 60, 30, 180))
         self.nextButton.setObjectName("nextButton")
+        self.nextButton.clicked.connect(self.nextImage)
         
         self.rejectButton = QtWidgets.QPushButton(self.centralwidget)
         self.rejectButton.setGeometry(QtCore.QRect(60, 210, 121, 31))
         self.rejectButton.setObjectName("rejectButton")
+        self.rejectButton.clicked.connect(self.rejectImage)
         
         self.acceptButton = QtWidgets.QPushButton(self.centralwidget)
         self.acceptButton.setGeometry(QtCore.QRect(180, 210, 131, 31))
         self.acceptButton.setObjectName("acceptButton")
+        self.acceptButton.clicked.connect(self.acceptImage)
         
         self.pwd_lbl = QtWidgets.QLabel(self.centralwidget)
         self.pwd_lbl.setGeometry(QtCore.QRect(40, 310, 291, 17))
@@ -106,14 +130,19 @@ class EDF:
         self.lineEdit_output.setGeometry(QtCore.QRect(160, 380, 211, 20))
         self.lineEdit_output.setObjectName("lineEdit_output")
         
-        self.lineEdit_check = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_check.setGeometry(QtCore.QRect(160, 410, 211, 20))
-        self.lineEdit_check.setObjectName("lineEdit_check")
+        # self.lineEdit_check = QtWidgets.QLineEdit(self.centralwidget)
+        # self.lineEdit_check.setGeometry(QtCore.QRect(160, 410, 211, 20))
+        # self.lineEdit_check.setObjectName("lineEdit_check")
+        
+        self.checkpoints_dropdown = QtWidgets.QComboBox(self.centralwidget)
+        self.checkpoints_dropdown.setGeometry(QtCore.QRect(160, 410, 211, 20))
+        self.checkpoints_dropdown.setObjectName("checkpoints_dropdown")
+        self.checkpoints_dropdown.addItems([x.split('/')[-1] for x in self.tsp.getCheckpoints()])
         
         self.loadButton = QtWidgets.QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QtCore.QRect(380, 410, 61, 21))
         self.loadButton.setObjectName("pushButton")
-        self.loadButton.clicked.connect(self.load_checkpoint)
+        self.loadButton.clicked.connect(lambda: self.load_checkpoint(self.checkpoints_dropdown.currentIndex()))
         
         self.title_lbl = QtWidgets.QLabel(self.centralwidget)
         self.title_lbl.setGeometry(QtCore.QRect(0, 0, 641, 41))
@@ -132,52 +161,98 @@ class EDF:
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.main_window)
 
-    def acceptImage(self, path, destination):
-        self.osp.move_file(path, destination)        
-        self.osp.move_xml_file(path, destination)
+    def showDialog(title, message):
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setWindowTitle(title)
+        msgBox.setText(message)
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        msgBox.buttonClicked.connect(msgButtonClick)
+        msgBox.exec()
+        sys.exit()
     
+    def acceptImage(self):
+        destination = os.path.join(self.output_folder, self.image.split('/')[-1])
+        self.osp.move_file(self.image, destination)
+        self.osp.move_xml_file(self.image, destination, self.image_extension)
+        self.files_moved.append((self.image, self.osp.has_xml_file(self.image)))
+        self.files.remove(self.image)
+        self.image_index = 0 if self.image_index == 0 else self.image_index - 1
+        self.retranslateUi()      
+            
     def rejectImage(self):
-        #TODO: rejectImage
-        pass
+        self.files_discarted.append(self.image)
+        self.files.remove(self.image)
+        self.image_index = 0 if self.image_index == 0 else self.image_index - 1
+        self.retranslateUi()      
 
     def nextImage(self):
-        #TODO: nextImage
-        pass
+        self.image_index = self.image_index + 1
+        self.image = self.files[self.image_index]
+        self.retranslateUi()
         
     def prevImage(self):
-        #TODO: prevImage
-        print("Previous image")
+        self.image_index = self.image_index - 1
+        self.image = self.files[self.image_index]
+        self.retranslateUi()
         
-    def load_checkpoint(self):
-        #TODO: load_checkpoint
-        print(self.tsp.dir_path)
-        print(self.tsp.getCheckpoints())
+    def load_checkpoint(self, index):
+        checkpoint = self.tsp.load_checkpoint(index)
+        self.current_folder = checkpoint["current_folder"]
+        self.input_folder = checkpoint["input_folder"]
+        self.output_folder = checkpoint["output_folder"]
+        self.files = checkpoint["files"]
+        self.files_moved = checkpoint["files_moved"]
+        self.files_discarted = checkpoint["files_discarted"]
+        self.checkpoint_index = index
+        self.retranslateUi()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.main_window.setWindowTitle(_translate("self.MainWindow", "self.MainWindow"))
+        try:
+            self.image = self.files[self.image_index]
+        except IndexError:
+            showDialog("ERROR 404", "Image not found")
+
+        self.tsp.save_checkpoint({
+            "current_folder": self.current_folder,
+            "input_folder": self.input_folder,
+            "output_folder": self.output_folder,
+            "files": self.files,
+            "files_moved": self.files_moved,
+            "files_discarted": self.files_discarted
+        }, self.checkpoint_index)        
+        self.main_window.setWindowTitle(_translate("self.MainWindow", "Easy Dataset Filter"))
         self.backButton.setText(_translate("self.MainWindow", "<"))
         self.nextButton.setText(_translate("self.MainWindow", ">"))
         self.rejectButton.setText(_translate("self.MainWindow", "Reject"))
         self.acceptButton.setText(_translate("self.MainWindow", "Accept"))
-        self.pwd_lbl.setText(_translate("self.MainWindow", "Current folder: ../.../../../.../"))
+        self.pwd_lbl.setText(_translate("self.MainWindow", f"Current folder: {self.osp.getCurrentfolder()}"))
+        
         self.card_1.setText(_translate("self.MainWindow", 
-        "File: ##/#####\n"
-        "\n"
-        "Files moved: #####\n"
-        "\n"
-        "Files discarted: #####"))
+        f"File: {self.image_index+1}/{len(self.files)}\n"
+        f"\n"
+        f"Files moved: {len(self.files_moved)}\n"
+        f"\n"
+        f"Files discarted: {len(self.files_discarted)}"))
+        
         self.card_2.setText(_translate("MainWindow", 
-        "FILES MOVED\n"
-        "\n"
-        "\n"
-        "\n"
-        "With xml: #####\n"
-        "\n"
-        "Without xml: #####"))
+        f"FILES MOVED\n"
+        f"\n"
+        f"\n"
+        f"\n"
+        f"With xml: {sum(list(dict(self.files_moved).values()))}\n"
+        f"\n"
+        f"Without xml: {len(self.files_moved)-sum(list(dict(self.files_moved).values()))}"))
+        
         self.in_lbl.setText(_translate("MainWindow", "Input folder:"))
         self.out_lbl.setText(_translate("MainWindow", "Output folder:"))
         self.tmp_lbl.setText(_translate("MainWindow", "Checkpoint file:"))
+        self.lineEdit_input.setText(self.input_folder)
+        self.lineEdit_output.setText(self.output_folder)
         self.loadButton.setText(_translate("MainWindow", "Load"))
         self.title_lbl.setText(_translate("MainWindow", "Easy Dataset Filter"))
+        self.imageButton.setIcon(QtGui.QIcon(self.image))
+        self.backButton.setDisabled(self.image_index == 0)
+        self.nextButton.setDisabled(self.image_index == len(self.files) - 1)
     

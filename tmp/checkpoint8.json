@@ -1,0 +1,41 @@
+{
+    "current_folder": "/home/rodri/Documents/easy_dataset_filter/edf/..",
+    "input_folder": "/home/rodri/Documents/easy_dataset_filter/edf/../data",
+    "output_folder": "/home/rodri/Documents/easy_dataset_filter/edf/../public",
+    "files": [
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (11).jpg",
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (6).jpg",
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (4).jpg"
+    ],
+    "files_moved": [
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (8).jpg",
+            false
+        ],
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (10).jpg",
+            false
+        ],
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (2).jpg",
+            false
+        ],
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (9).jpg",
+            false
+        ],
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (3).jpg",
+            false
+        ],
+        [
+            "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (1).jpg",
+            false
+        ]
+    ],
+    "files_discarted": [
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (7).jpg",
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (5).jpg",
+        "/home/rodri/Documents/easy_dataset_filter/edf/../data/image (12).jpg"
+    ]
+}
