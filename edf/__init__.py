@@ -87,7 +87,9 @@ class EDF:
         self.xml_badge = QtWidgets.QLabel(self.centralwidget)
         self.xml_badge.setObjectName("xml_badge")
         self.xml_badge.setText("xml")
-        self.xml_badge.setGeometry(QtCore.QRect(270, 70, 25, 17))
+        self.xml_badge.setGeometry(QtCore.QRect(260, 65, 35, 20))
+        self.xml_badge.setStyleSheet(self.styles["xml_badge"])
+        self.xml_badge.setGraphicsEffect(QtWidgets.QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3))
 
         self.nextButton = QtWidgets.QPushButton(self.centralwidget)
         self.nextButton.setGeometry(QtCore.QRect(310, 60, 30, 180))
@@ -223,7 +225,8 @@ class EDF:
             self.image = self.files[self.image_index]
         except IndexError:
             showDialog("ERROR 404", "Image not found")
-
+        self.xml_exists = self.osp.has_xml_file(path=self.image, image_extension=self.image_extension)
+        self.xml_badge.setStyleSheet("QLabel {background-color: "+('green;' if self.xml_exists else 'red;')+"\nborder: 1px solid black;\ncolor: white;\npadding-left: 3px;\nfont-weight: 700;\nfont-size: 10px;\nborder-radius: 3px;}")
         self.tsp.save_checkpoint({
             "current_folder": self.current_folder,
             "input_folder": self.input_folder,

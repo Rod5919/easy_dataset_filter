@@ -18,8 +18,8 @@ class Os_script:
         except FileNotFoundError:
             print(f"{path.split('/')[-1]} has no xml file")
 
-    def has_xml_file(self, path):
-        return os.path.exists(path.split('.')[0]+"xml")
+    def has_xml_file(self, path, image_extension):
+        return os.path.exists(path.replace(image_extension, 'xml'))
 
     def setInputfolder(self, path):
         self.__input_folder = path
