@@ -1,12 +1,16 @@
 import os
 import glob
 import json
-
+import re
+def atoi(text):
+    return int(text) if text.isdigit() else text
+def natural_keys(text):
+    return [ atoi(c) for c in re.split('(\d+)',text) ]
 class Tmp_script:
     def __init__(self, dir_path):
         self.__dir_path = dir_path
         self.__checkpoints = glob.glob(os.path.join(dir_path,"*.json"))
-        self.__checkpoints.sort()
+        self.__checkpoints.sort(key=natural_keys)
         self.__current_checkpoint = os.path.join(self.__dir_path,f"checkpoint{(len(self.__checkpoints)+1)}.json")
 
     def create_checkpoint(self, attributes):

@@ -28,8 +28,6 @@ class EDF:
         # Imports
         self.osp = osp(input_folder=input_folder, output_folder=output_folder, current_folder=current_folder)
         self.tsp = tsp(checkpoint_directory)
-        # print(checkpoint_directory)
-        # print(self.tsp.getCheckpoints())
         
         # Variables
         self.files = glob.glob(os.path.join(self.osp.getInputfolder(),f"*.{image_extension}"))
@@ -48,6 +46,12 @@ class EDF:
         self.image = self.files[self.image_index]
         self.xml_exists = False
         
+        # Style
+        self.styles = {}
+        for filename in glob.glob(os.path.join(self.current_folder, "edf", "style", "*.css")):
+            with open(filename) as f:
+                lines = f.readlines()
+            self.styles[filename.split('/')[-1].split('.')[0]] = "".join(lines)
         # SetupUi
         self.tsp.create_checkpoint({
             "current_folder": self.current_folder,
@@ -72,11 +76,13 @@ class EDF:
         self.backButton.setGeometry(QtCore.QRect(30, 60, 30, 180))
         self.backButton.setObjectName("backButton")
         self.backButton.clicked.connect(self.prevImage)
+        self.backButton.setStyleSheet(self.styles["move_button"])
 
         self.imageButton = QtWidgets.QPushButton(self.centralwidget)
         self.imageButton.setGeometry(QtCore.QRect(60, 60, 250, 150))
         self.imageButton.setObjectName("imageButton")
         self.imageButton.setIconSize(QtCore.QSize(250, 180))
+        self.imageButton.setStyleSheet(self.styles["image"])
 
         self.xml_badge = QtWidgets.QLabel(self.centralwidget)
         self.xml_badge.setObjectName("xml_badge")
@@ -87,16 +93,19 @@ class EDF:
         self.nextButton.setGeometry(QtCore.QRect(310, 60, 30, 180))
         self.nextButton.setObjectName("nextButton")
         self.nextButton.clicked.connect(self.nextImage)
+        self.nextButton.setStyleSheet(self.styles["move_button"])
         
         self.rejectButton = QtWidgets.QPushButton(self.centralwidget)
         self.rejectButton.setGeometry(QtCore.QRect(60, 210, 121, 31))
         self.rejectButton.setObjectName("rejectButton")
         self.rejectButton.clicked.connect(self.rejectImage)
+        self.rejectButton.setStyleSheet(self.styles["reject_button"])
         
         self.acceptButton = QtWidgets.QPushButton(self.centralwidget)
         self.acceptButton.setGeometry(QtCore.QRect(180, 210, 131, 31))
         self.acceptButton.setObjectName("acceptButton")
         self.acceptButton.clicked.connect(self.acceptImage)
+        self.acceptButton.setStyleSheet(self.styles["accept_button"])
         
         self.pwd_lbl = QtWidgets.QLabel(self.centralwidget)
         self.pwd_lbl.setGeometry(QtCore.QRect(40, 310, 291, 17))
@@ -105,10 +114,14 @@ class EDF:
         self.card_1 = QtWidgets.QLabel(self.centralwidget)
         self.card_1.setGeometry(QtCore.QRect(380, 60, 201, 141))
         self.card_1.setObjectName("card_1")
+        self.card_1.setStyleSheet(self.styles["card"])
+        self.card_1.setGraphicsEffect(QtWidgets.QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3))
         
         self.card_2 = QtWidgets.QLabel(self.centralwidget)
         self.card_2.setGeometry(QtCore.QRect(380, 210, 211, 151))
         self.card_2.setObjectName("card_2")
+        self.card_2.setStyleSheet(self.styles["card"])
+        self.card_2.setGraphicsEffect(QtWidgets.QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3))
         
         self.in_lbl = QtWidgets.QLabel(self.centralwidget)
         self.in_lbl.setGeometry(QtCore.QRect(40, 350, 111, 17))
@@ -130,10 +143,6 @@ class EDF:
         self.lineEdit_output.setGeometry(QtCore.QRect(160, 380, 211, 20))
         self.lineEdit_output.setObjectName("lineEdit_output")
         
-        # self.lineEdit_check = QtWidgets.QLineEdit(self.centralwidget)
-        # self.lineEdit_check.setGeometry(QtCore.QRect(160, 410, 211, 20))
-        # self.lineEdit_check.setObjectName("lineEdit_check")
-        
         self.checkpoints_dropdown = QtWidgets.QComboBox(self.centralwidget)
         self.checkpoints_dropdown.setGeometry(QtCore.QRect(160, 410, 211, 20))
         self.checkpoints_dropdown.setObjectName("checkpoints_dropdown")
@@ -142,6 +151,7 @@ class EDF:
         self.loadButton = QtWidgets.QPushButton(self.centralwidget)
         self.loadButton.setGeometry(QtCore.QRect(380, 410, 61, 21))
         self.loadButton.setObjectName("pushButton")
+        self.loadButton.setStyleSheet(self.styles["load_button"])
         self.loadButton.clicked.connect(lambda: self.load_checkpoint(self.checkpoints_dropdown.currentIndex()))
         
         self.title_lbl = QtWidgets.QLabel(self.centralwidget)
