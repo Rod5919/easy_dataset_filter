@@ -159,6 +159,7 @@ class EDF:
         self.title_lbl = QtWidgets.QLabel(self.centralwidget)
         self.title_lbl.setGeometry(QtCore.QRect(0, 0, 641, 41))
         self.title_lbl.setObjectName("title_lbl")
+        self.title_lbl.setStyleSheet(self.styles['title'])
         
         self.main_window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(self.main_window)
@@ -187,7 +188,7 @@ class EDF:
         destination = os.path.join(self.output_folder, self.image.split('/')[-1])
         self.osp.move_file(self.image, destination)
         self.osp.move_xml_file(self.image, destination, self.image_extension)
-        self.files_moved.append((self.image, self.osp.has_xml_file(self.image)))
+        self.files_moved.append((self.image, self.osp.has_xml_file(self.image, image_extension='jpg')))
         self.files.remove(self.image)
         self.image_index = 0 if self.image_index == 0 else self.image_index - 1
         self.retranslateUi()      
